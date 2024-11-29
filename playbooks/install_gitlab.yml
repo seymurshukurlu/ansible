@@ -1,0 +1,25 @@
+---
+- name: GitLab Runner installation on dev_vm
+  hosts: dev_vms
+  become: yes
+
+  tasks:
+    - name: Download GitLab Runner binary
+      get_url:
+        url: "https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64"
+        dest: "/usr/local/bin/gitlab-runner"
+        mode: '0755'
+
+    - name: Register GitLab Runner as a service
+      command: "/usr/local/bin/gitlab-runner install --user=root --working-directory=/home/gitlab-runner"
+      ignore_errors: yes
+      register: install_output
+      failed_when: 
+        - install_output.rc != 0
+        - "'Init already exists' not in install_output.stderr"
+
+    - name: Start GitLab Runner service
+      systemd:
+        name: gitlab-runner
+        state: started
+        enabled: yes

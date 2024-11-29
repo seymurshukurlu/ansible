@@ -1,0 +1,30 @@
+---
+- name: Configure Gunicorn
+  hosts: dev_vm
+  tasks:
+    - name: Install Python 3 venv package
+      apt:
+        name: python3-venv
+        state: present
+
+    - name: Create a virtual environment
+      command: python3 -m venv /opt/django_app/venv
+      args:
+        creates: /opt/django_app/venv
+
+    - name: Install Gunicorn in virtual environment
+      pip:
+        name: gunicorn
+        virtualenv: /opt/django_app/venv
+        state: present
+      environment:
+        VIRTUAL_ENV: /opt/django_app/venv
+        PATH: "/opt/django_app/venv/bin:{{ ansible_env.PATH }}"
+
+    - name: Verify Gunicorn installation
+      command: /opt/django_app/venv/bin/pip list
+      register: pip_list_output
+
+    - name: Display pip list output
+      debug:
+        var: pip_list_output.stdout_lines

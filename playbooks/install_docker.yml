@@ -1,0 +1,6 @@
+# install_docker.yml
+---
+- name: Docker installation on dev_vm
+  hosts: dev_vms       # Targets the dev_vms group from hosts.ini
+  roles:
+    - docker

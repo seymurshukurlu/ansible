@@ -1,0 +1,13 @@
+# roles/common/tasks/main.yml
+---
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+  become: true
+
+- name: Install basic dependencies
+  apt:
+    name: ['curl', 'git', 'software-properties-common']
+    state: present
+  become: true

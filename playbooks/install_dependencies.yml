@@ -1,0 +1,26 @@
+---
+- name: Install application dependencies on dev_vm
+  hosts: dev_vms
+  become: yes
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Install python3-venv if not present
+      apt:
+        name: python3-venv
+        state: present
+        update_cache: yes
+
+    - name: Create a virtual environment
+      command: python3 -m venv /opt/django_app/venv
+      args:
+        creates: /opt/django_app/venv
+
+    - name: Copy requirements.txt to VM
+      copy:
+        src: requirements.txt
+        dest: /opt/django_app/requirements.txt
+
+    - name: Install Python dependencies in the virtual environment
+      command: /opt/django_app/venv/bin/pip install -r /opt/django_app/requirements.txt

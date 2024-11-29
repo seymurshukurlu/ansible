@@ -1,0 +1,31 @@
+# roles/gitlab/tasks/main.yml
+---
+- name: Add GitLab Runner repository
+  apt_repository:
+    repo: "deb https://packages.gitlab.com/runner/gitlab-runner/ubuntu/ {{ ansible_lsb.codename }} main"
+    state: present
+  become: true
+
+- name: Add GitLab Runner GPG key
+  apt_key:
+    url: https://packages.gitlab.com/runner/gitlab-runner/gpgkey
+    state: present
+  become: true
+
+- name: Update package cache
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install GitLab Runner
+  apt:
+    name: gitlab-runner
+    state: present
+  become: true
+
+- name: Start and enable GitLab Runner service
+  systemd:
+    name: gitlab-runner
+    enabled: true
+    state: started
+  become: true

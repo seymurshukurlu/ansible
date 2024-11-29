@@ -1,0 +1,43 @@
+---
+- name: Deploy Django Application with Docker
+  hosts: dev_vm
+  become: yes
+  vars_files:
+    - ~/Documents/Devops/ansible_documentation/ansible/vault.yml  # Loads encrypted GitLab credentials
+
+  tasks:
+    - name: Ensure the application directory exists
+      file:
+        path: /opt/django_app
+        state: directory
+
+    - name: Debug GitLab credentials (Ensure variables are loaded correctly)
+      debug:
+        msg: "Username: {{ gitlab_username }}, Password: {{ gitlab_password }}"
+
+    - name: Clone the Django application repository
+      ansible.builtin.git:
+        repo: "https://{{ gitlab_username }}:{{ gitlab_password }}@gitlab.mruslan.site/devops-midterm-group/devops-crud-app.git"
+        dest: /opt/django_app
+        version: main  # Specify branch if needed
+        force: yes  # Ensures any previous files are overridden
+      register: git_clone_status
+
+    - name: Check Git clone status
+      debug:
+        var: git_clone_status.after
+
+    - name: Deploy the application with Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /opt/django_app
+
+    - name: Confirm application is running
+      command: docker-compose ps
+      args:
+        chdir: /opt/django_app
+      register: compose_status
+
+    - name: Display Docker Compose status
+      debug:
+        var: compose_status.stdout_lines

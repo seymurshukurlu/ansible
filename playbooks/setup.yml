@@ -1,0 +1,8 @@
+# setup.yml
+---
+- name: Prepare dev_vm server with common, Docker, and GitLab setup
+  hosts: dev_vms       # Targets the dev_vms group from hosts.ini
+  roles:
+    - common
+    - docker
+    - gitlab
